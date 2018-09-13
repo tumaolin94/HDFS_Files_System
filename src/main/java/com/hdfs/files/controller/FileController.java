@@ -1,10 +1,14 @@
 package com.hdfs.files.controller;
 
 import com.hdfs.files.exception.StorageFileNotFoundException;
+import com.hdfs.files.properties.FSConfigration;
+import com.hdfs.files.service.HdfsService;
 import com.hdfs.files.service.StorageService;
 import java.io.IOException;
-import java.nio.file.Path;
+
 import java.util.List;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
@@ -31,15 +35,36 @@ public class FileController {
   @Autowired
   private StorageService storageService;
 
+  @Autowired
+  private HdfsService hdfsService;
+
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @GetMapping("/")
-  public ResponseEntity<List<Path>> listUploadedFiles() throws IOException {
+  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles() throws IOException {
 
-    List<Path> collect = storageService.loadAll().collect(Collectors.toList());
+    List<java.nio.file.Path> collect = storageService.loadAll().collect(Collectors.toList());
 
     return new ResponseEntity(collect, HttpStatus.OK);
   }
+
+
+  @GetMapping("/test/hadoop")
+  public ResponseEntity<String> testHadoop(@RequestParam("path") String path){
+    String str = "at first";
+    try {
+
+      str = path + "  is " +hdfsService.exits(path);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return new ResponseEntity<String>(str, HttpStatus.OK);
+  }
+
+
+
+
+
 
   @GetMapping("/files/{filename:.+}")
   @ResponseBody
