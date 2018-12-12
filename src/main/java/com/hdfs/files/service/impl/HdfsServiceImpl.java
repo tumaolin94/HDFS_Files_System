@@ -1,8 +1,10 @@
 package com.hdfs.files.service.impl;
 
 import com.hdfs.files.properties.FSConfigration;
+import com.hdfs.files.properties.StorageProperties;
 import com.hdfs.files.service.HdfsService;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,12 +13,19 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class HdfsServiceImpl implements HdfsService {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final Path downloadLocation;
+
+  @Autowired
+  public HdfsServiceImpl(StorageProperties properties) {
+    this.downloadLocation = new Path(properties.getDownloadLocation());
+  }
   /**
    * judge if path exists
    *
@@ -47,5 +56,14 @@ public class HdfsServiceImpl implements HdfsService {
     fs.copyFromLocalFile(new Path(oriPath), new Path(desPath));
     logger.info("Upload to", FSConfigration.getConfiguration().get("fs.default.name"));
     return listAll(desPath);
+  }
+
+  @Override
+  public String downloadFile(String strPath) throws IOException {
+    FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
+    Path oriPath = new Path(strPath);
+    fs.copyToLocalFile(oriPath, downloadLocation);
+
+    return downloadLocation.toString()+"/"+oriPath.getName();
   }
 }

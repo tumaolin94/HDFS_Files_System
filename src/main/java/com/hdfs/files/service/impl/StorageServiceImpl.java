@@ -28,10 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class StorageServiceImpl implements StorageService {
 
   private final Path rootLocation;
+  private final Path downloadLocation;
   private Logger logger = LoggerFactory.getLogger(this.getClass());
+
   @Autowired
   public StorageServiceImpl(StorageProperties properties) {
     this.rootLocation = Paths.get(properties.getLocation());
+    this.downloadLocation = Paths.get(properties.getDownloadLocation());
   }
 
   @Override
@@ -97,6 +100,25 @@ public class StorageServiceImpl implements StorageService {
   }
 
   @Override
+  public Resource loadFromPath(String path) {
+    try {
+      Path file  =Paths.get(path);
+      Resource resource = new UrlResource(file.toUri());
+      if (resource.exists() || resource.isReadable()) {
+        return resource;
+      }
+      else {
+        throw new StorageFileNotFoundException(
+            "Could not read file: " + path);
+
+      }
+    }
+    catch (MalformedURLException e) {
+      throw new StorageFileNotFoundException("Could not read file: " + path, e);
+    }
+  }
+
+  @Override
   public void deleteAll() {
     FileSystemUtils.deleteRecursively(rootLocation.toFile());
   }
@@ -106,6 +128,8 @@ public class StorageServiceImpl implements StorageService {
     try {
       Files.createDirectories(rootLocation);
       logger.info("Init succeed! {}",rootLocation);
+      Files.createDirectories(downloadLocation);
+      logger.info("Init succeed! {}",downloadLocation);
     }
     catch (IOException e) {
       logger.error("Init failed! ",e);

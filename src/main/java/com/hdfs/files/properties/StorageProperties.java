@@ -10,6 +10,9 @@ public class StorageProperties {
    */
   private String location = "/tmp/upload-dir";
 
+
+  private String downloadLocation = "/tmp/download-dir";
+
   public String getLocation() {
     return location;
   }
@@ -18,4 +21,11 @@ public class StorageProperties {
     this.location = location;
   }
 
+  public String getDownloadLocation() {
+    return downloadLocation;
+  }
+
+  public void setDownloadLocation(String downloadLocation) {
+    this.downloadLocation = downloadLocation;
+  }
 }

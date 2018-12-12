@@ -1,15 +1,12 @@
 package com.hdfs.files.controller;
 
 import com.hdfs.files.exception.StorageFileNotFoundException;
-import com.hdfs.files.properties.FSConfigration;
 import com.hdfs.files.service.HdfsService;
 import com.hdfs.files.service.StorageService;
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
@@ -93,11 +90,24 @@ public class FileController {
       return new ResponseEntity<>(new ArrayList<>(), HttpStatus.EXPECTATION_FAILED);
     }
 
-
-
   }
 
+  @GetMapping("/test/hadoop/files")
+  @ResponseBody
+  public ResponseEntity<Resource> downloadHDFSFile(@RequestParam("path") String path) {
 
+    try {
+      String localFilePath = hdfsService.downloadFile(path);
+      logger.info("downloadHDFSFile localFilePath", localFilePath);
+      Resource file = storageService.loadFromPath(localFilePath);
+      return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    } catch (IOException e) {
+      logger.error("downloadHDFSFile ERROR", e);
+      return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+    }
+
+  }
 
 
 
