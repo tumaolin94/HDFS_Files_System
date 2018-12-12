@@ -67,12 +67,35 @@ public class FileController {
     try {
 
       List<String> res = hdfsService.listAll(path);
+      return new ResponseEntity<List<String>>(res, HttpStatus.OK);
     } catch (IOException e) {
       e.printStackTrace();
+      return new ResponseEntity<>(new ArrayList<>(), HttpStatus.EXPECTATION_FAILED);
     }
-    return new ResponseEntity<List<String>>(new ArrayList<String>(), HttpStatus.OK);
+
   }
 
+  @PostMapping("/test/hadoop/upload")
+  public ResponseEntity<List<String>> hdfsFileUpload(@RequestParam("file") MultipartFile file,
+      @RequestParam("path") String strPath,
+      RedirectAttributes redirectAttributes) {
+
+
+    try {
+      logger.info("handleFileUpload {}", file.getOriginalFilename());
+      String path = storageService.store(file);
+      List<String> res = hdfsService.uploadFile(path, strPath);
+      redirectAttributes.addFlashAttribute("message",
+          "You successfully uploaded " + file.getOriginalFilename() + "!");
+      return new ResponseEntity<>(res, HttpStatus.OK);
+    } catch (IOException e) {
+      logger.error("hdfsFileUpload ERROR", e);
+      return new ResponseEntity<>(new ArrayList<>(), HttpStatus.EXPECTATION_FAILED);
+    }
+
+
+
+  }
 
 
 
@@ -93,6 +116,7 @@ public class FileController {
 
     logger.info("handleFileUpload {}", file.getOriginalFilename());
     String path = storageService.store(file);
+
     redirectAttributes.addFlashAttribute("message",
         "You successfully uploaded " + file.getOriginalFilename() + "!");
 

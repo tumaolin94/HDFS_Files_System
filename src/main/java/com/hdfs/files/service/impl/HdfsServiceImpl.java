@@ -39,4 +39,13 @@ public class HdfsServiceImpl implements HdfsService {
         Collectors.toList());
     return res;
   }
+
+  @Override
+  public List<String> uploadFile(String oriPath, String desPath) throws IOException {
+    FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
+
+    fs.copyFromLocalFile(new Path(oriPath), new Path(desPath));
+    logger.info("Upload to", FSConfigration.getConfiguration().get("fs.default.name"));
+    return listAll(desPath);
+  }
 }
