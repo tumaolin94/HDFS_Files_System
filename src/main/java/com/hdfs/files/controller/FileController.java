@@ -6,6 +6,7 @@ import com.hdfs.files.service.HdfsService;
 import com.hdfs.files.service.StorageService;
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -59,6 +60,17 @@ public class FileController {
       e.printStackTrace();
     }
     return new ResponseEntity<String>(str, HttpStatus.OK);
+  }
+
+  @GetMapping("/test/hadoop/list")
+  public ResponseEntity<List<String>> testList(@RequestParam("path") String path){
+    try {
+
+      List<String> res = hdfsService.listAll(path);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return new ResponseEntity<List<String>>(new ArrayList<String>(), HttpStatus.OK);
   }
 
 
