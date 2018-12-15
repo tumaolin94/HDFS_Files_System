@@ -55,6 +55,7 @@ public class HdfsServiceImpl implements HdfsService {
 
     fs.copyFromLocalFile(new Path(oriPath), new Path(desPath));
     logger.info("Upload to", FSConfigration.getConfiguration().get("fs.default.name"));
+
     return listAll(desPath);
   }
 
@@ -63,7 +64,23 @@ public class HdfsServiceImpl implements HdfsService {
     FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
     Path oriPath = new Path(strPath);
     fs.copyToLocalFile(oriPath, downloadLocation);
-
+    fs.close();
     return downloadLocation.toString()+"/"+oriPath.getName();
+  }
+
+  @Override
+  public String mkdir(String dir) throws IOException{
+    FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
+    Path path = new Path(dir);
+    if (fs.exists(path)) {
+      logger.info("Dir " + dir + " already exists");
+      return "Dir " + dir + " already exists";
+    }
+
+    fs.mkdirs(path);
+
+    fs.close();
+
+    return path + " build up successfully!";
   }
 }

@@ -93,7 +93,6 @@ public class FileController {
   }
 
   @GetMapping("/test/hadoop/files")
-  @ResponseBody
   public ResponseEntity<Resource> downloadHDFSFile(@RequestParam("path") String path) {
 
     try {
@@ -109,10 +108,39 @@ public class FileController {
 
   }
 
+  @GetMapping("/test/hadoop/directory")
+  public ResponseEntity<Resource> downloadHDFSDirectory(@RequestParam("path") String path) {
+
+    try {
+      String localFilePath = hdfsService.downloadFile(path);
+      logger.info("downloadHDFSFile localFilePath", localFilePath);
+      Resource file = storageService.loadFromPath(localFilePath);
+      return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    } catch (IOException e) {
+      logger.error("downloadHDFSFile ERROR", e);
+      return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+    }
+
+  }
+
+  @PostMapping("/test/hadoop/mkdir")
+  public ResponseEntity<String> hdfsMkdir(@RequestParam("path") String path) {
+
+    try {
+      logger.info("hdfsMkdir",path);
+      String result = hdfsService.mkdir(path);
+      return new ResponseEntity<>(path, HttpStatus.OK);
+    } catch (IOException e) {
+      logger.error("hdfsMkdir ERROR", e);
+      return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+    }
+
+  }
+
 
 
   @GetMapping("/files/{filename:.+}")
-  @ResponseBody
   public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
     Resource file = storageService.loadAsResource(filename);

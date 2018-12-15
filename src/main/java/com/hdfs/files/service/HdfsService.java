@@ -11,4 +11,6 @@ public interface HdfsService {
   List<String> uploadFile(String oriPath, String desPath) throws IOException;
 
   String downloadFile(String strPath) throws IOException;
+
+  String mkdir(String path) throws IOException;
 }
