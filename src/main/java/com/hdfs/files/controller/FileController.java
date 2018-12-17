@@ -121,9 +121,9 @@ public class FileController {
 
     try {
       String localFilePath = hdfsService.downloadFile(path);
-      logger.info("downloadHDFSFile localFilePath", localFilePath);
-
-      Resource file = storageService.loadFromPath(localFilePath);
+      logger.info("downloadHDFSFile localFilePath {}", localFilePath);
+      String zipFile = storageService.zipFile(localFilePath);
+      Resource file = storageService.loadFromPath(zipFile);
       return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
           "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     } catch (IOException e) {

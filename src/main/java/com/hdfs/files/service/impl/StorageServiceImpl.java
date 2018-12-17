@@ -139,7 +139,7 @@ public class StorageServiceImpl implements StorageService {
 
   @Override
   public String zipFile(String filename) {
-    String downloadPath = downloadLocation.toString()+"/"+filename;
+    String downloadPath = filename;
     logger.info("downloadPath {}", downloadPath);
     ZipUtils.compressExe(downloadPath, downloadPath+".zip");
     return downloadPath+".zip";

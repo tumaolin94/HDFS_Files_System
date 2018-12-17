@@ -63,6 +63,7 @@ public class HdfsServiceImpl implements HdfsService {
   public String downloadFile(String strPath) throws IOException {
     FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
     Path oriPath = new Path(strPath);
+    logger.info("oriPath {} dst location {}", oriPath, downloadLocation);
     fs.copyToLocalFile(oriPath, downloadLocation);
     fs.close();
     return downloadLocation.toString()+"/"+oriPath.getName();
