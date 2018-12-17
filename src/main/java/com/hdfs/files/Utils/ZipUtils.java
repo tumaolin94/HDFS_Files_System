@@ -21,7 +21,7 @@ public class ZipUtils {
     File zipFile = new File(finalFile);
     File srcdir = new File(srcPathName);
     if (!srcdir.exists()){
-      throw new RuntimeException(srcPathName + "不存在！");
+      throw new RuntimeException(srcPathName + "Does not exist!");
     }
 
     Project prj = new Project();

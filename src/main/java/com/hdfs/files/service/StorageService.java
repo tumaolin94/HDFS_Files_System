@@ -14,6 +14,8 @@ public interface StorageService {
 
   Stream<Path> loadAll();
 
+  Stream<Path> loadLocalFiles(String strPath);
+
   Path load(String filename);
 
   Resource loadAsResource(String filename);
@@ -21,4 +23,6 @@ public interface StorageService {
   Resource loadFromPath(String path);
 
   void deleteAll();
+
+  String zipFile(String filename);
 }

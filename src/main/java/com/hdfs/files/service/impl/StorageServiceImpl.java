@@ -1,5 +1,6 @@
 package com.hdfs.files.service.impl;
 
+import com.hdfs.files.Utils.ZipUtils;
 import com.hdfs.files.exception.StorageException;
 import com.hdfs.files.exception.StorageFileNotFoundException;
 import com.hdfs.files.properties.StorageProperties;
@@ -76,6 +77,19 @@ public class StorageServiceImpl implements StorageService {
   }
 
   @Override
+  public Stream<Path> loadLocalFiles(String strPath) {
+    try {
+      Path locagion = Paths.get(strPath);
+      logger.info("loadAll {}", locagion);
+      return Files.list(locagion).collect(Collectors.toList()).stream();
+
+    }
+    catch (IOException e) {
+      throw new StorageException("Failed to read stored files", e);
+    }
+  }
+
+  @Override
   public Path load(String filename) {
     return rootLocation.resolve(filename);
   }
@@ -121,6 +135,14 @@ public class StorageServiceImpl implements StorageService {
   @Override
   public void deleteAll() {
     FileSystemUtils.deleteRecursively(rootLocation.toFile());
+  }
+
+  @Override
+  public String zipFile(String filename) {
+    String downloadPath = downloadLocation.toString()+"/"+filename;
+    logger.info("downloadPath {}", downloadPath);
+    ZipUtils.compressExe(downloadPath, downloadPath+".zip");
+    return downloadPath+".zip";
   }
 
   @Override

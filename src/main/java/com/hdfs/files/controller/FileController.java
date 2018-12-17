@@ -46,6 +46,14 @@ public class FileController {
     return new ResponseEntity(collect, HttpStatus.OK);
   }
 
+  @GetMapping("/list")
+  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles(@RequestParam("path") String path) throws IOException {
+
+    List<java.nio.file.Path> collect = storageService.loadLocalFiles(path).collect(Collectors.toList());
+
+    return new ResponseEntity(collect, HttpStatus.OK);
+  }
+
 
   @GetMapping("/test/hadoop")
   public ResponseEntity<String> testHadoop(@RequestParam("path") String path){
@@ -114,6 +122,7 @@ public class FileController {
     try {
       String localFilePath = hdfsService.downloadFile(path);
       logger.info("downloadHDFSFile localFilePath", localFilePath);
+
       Resource file = storageService.loadFromPath(localFilePath);
       return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
           "attachment; filename=\"" + file.getFilename() + "\"").body(file);
@@ -139,6 +148,14 @@ public class FileController {
   }
 
 
+  @GetMapping("/test/direcories")
+  public ResponseEntity<Resource> getZipDirectory(@RequestParam("filename") String filename) {
+
+    String zipFile = storageService.zipFile(filename);
+    Resource file = storageService.loadFromPath(zipFile);
+    return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+  }
 
   @GetMapping("/files/{filename:.+}")
   public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
