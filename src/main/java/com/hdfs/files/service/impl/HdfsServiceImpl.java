@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class HdfsServiceImpl implements HdfsService {
@@ -63,10 +64,11 @@ public class HdfsServiceImpl implements HdfsService {
   public String downloadFile(String strPath) throws IOException {
     FileSystem fs = FileSystem.get(FSConfigration.getConfiguration());
     Path oriPath = new Path(strPath);
-    logger.info("oriPath {} dst location {}", oriPath, downloadLocation);
-    fs.copyToLocalFile(oriPath, downloadLocation);
+    String tmpDir = downloadLocation.toString()+"/"+oriPath.getName()+String.valueOf(System.currentTimeMillis())+"/"+oriPath.getName();
+    logger.info("oriPath {} dst location {}", oriPath, tmpDir);
+    fs.copyToLocalFile(oriPath, new Path(tmpDir));
     fs.close();
-    return downloadLocation.toString()+"/"+oriPath.getName();
+    return tmpDir;
   }
 
   @Override
