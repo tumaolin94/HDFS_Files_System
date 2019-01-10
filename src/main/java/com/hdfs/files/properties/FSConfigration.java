@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-
+/**
+ * author: Maolin Tu
+ * 2019.1.9
+ * */
 @Component
 @PropertySource("classpath:hadoop.properties")
 @ConfigurationProperties(prefix = "fs")

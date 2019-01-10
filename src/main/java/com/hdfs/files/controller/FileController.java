@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
+/**
+ * author: Maolin Tu
+ * 2019.1.9
+ * */
 @Controller
 public class FileController {
 
@@ -38,25 +40,17 @@ public class FileController {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @GetMapping("/")
-  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles() throws IOException {
-
-    List<java.nio.file.Path> collect = storageService.loadAll().collect(Collectors.toList());
-
-    return new ResponseEntity(collect, HttpStatus.OK);
-  }
-
-  @GetMapping("/list")
-  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles(@RequestParam("path") String path) throws IOException {
-
-    List<java.nio.file.Path> collect = storageService.loadLocalFiles(path).collect(Collectors.toList());
-
-    return new ResponseEntity(collect, HttpStatus.OK);
-  }
 
 
-  @GetMapping("/test/hadoop")
-  public ResponseEntity<String> testHadoop(@RequestParam("path") String path){
+
+  /**
+   * getIfPathExists
+   * return if the path is existed in HDFS
+   * @param path: the target path need to be visited
+   * @return ResponseEntity<String>
+   * */
+  @GetMapping("/hadoop/exists")
+  public ResponseEntity<String> getIfPathExists(@RequestParam("path") String path){
     String str = "at first";
     try {
 
@@ -67,8 +61,15 @@ public class FileController {
     return new ResponseEntity<String>(str, HttpStatus.OK);
   }
 
-  @GetMapping("/test/hadoop/list")
-  public ResponseEntity<List<String>> testList(@RequestParam("path") String path){
+  /**
+   * getList
+   *
+   * return all files/directories of target path
+   * @param path: the target path need to be visited
+   * @return ResponseEntity<List<String>>
+   * */
+  @GetMapping("/hadoop/list")
+  public ResponseEntity<List<String>> getList(@RequestParam("path") String path){
     try {
 
       List<String> res = hdfsService.listAll(path);
@@ -80,8 +81,15 @@ public class FileController {
 
   }
 
-  @PostMapping("/test/hadoop/upload")
-  public ResponseEntity<List<String>> hdfsFileUpload(@RequestParam("file") MultipartFile file,
+  /**
+   * uploadFile
+   *
+   * @param file: upload file
+   * @param strPath: the target path need to be visited
+   * @return ResponseEntity<List<String>>
+   * */
+  @PostMapping("/hadoop/upload")
+  public ResponseEntity<List<String>> uploadFile(@RequestParam("file") MultipartFile file,
       @RequestParam("path") String strPath,
       RedirectAttributes redirectAttributes) {
 
@@ -100,8 +108,15 @@ public class FileController {
 
   }
 
-  @GetMapping("/test/hadoop/files")
-  public ResponseEntity<Resource> downloadHDFSFile(@RequestParam("path") String path) {
+  /**
+   * downloadFile
+   *
+   * download files/directories of target path
+   * @param path: the target path need to be visited
+   * @return ResponseEntity<Resource>
+   * */
+  @GetMapping("/hadoop/files")
+  public ResponseEntity<Resource> downloadFile(@RequestParam("path") String path) {
 
     try {
       String localFilePath = hdfsService.downloadFile(path);
@@ -116,8 +131,15 @@ public class FileController {
 
   }
 
-  @GetMapping("/test/hadoop/directory")
-  public ResponseEntity<Resource> downloadHDFSDirectory(@RequestParam("path") String path) {
+  /**
+   * downloadDirectory
+   *
+   * download directories of target path
+   * @param path: the target path need to be visited
+   * @return ResponseEntity<Resource>
+   * */
+  @GetMapping("/hadoop/directory")
+  public ResponseEntity<Resource> downloadDirectory(@RequestParam("path") String path) {
 
     try {
       String localFilePath = hdfsService.downloadFile(path);
@@ -133,8 +155,15 @@ public class FileController {
 
   }
 
-  @PostMapping("/test/hadoop/mkdir")
-  public ResponseEntity<String> hdfsMkdir(@RequestParam("path") String path) {
+  /**
+   * makeDir
+   *
+   * create new directory for target path
+   * @param path: the target path need to be visited
+   * @return ResponseEntity<String>
+   * */
+  @PostMapping("/hadoop/mkdir")
+  public ResponseEntity<String> makeDir(@RequestParam("path") String path) {
 
     try {
       logger.info("hdfsMkdir",path);
@@ -147,36 +176,52 @@ public class FileController {
 
   }
 
+  /***************** Test API for remote server, not HDFS *****************/
+  //  @GetMapping("/")
+//  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles() throws IOException {
+//
+//    List<java.nio.file.Path> collect = storageService.loadAll().collect(Collectors.toList());
+//
+//    return new ResponseEntity(collect, HttpStatus.OK);
+//  }
 
-  @GetMapping("/test/direcories")
-  public ResponseEntity<Resource> getZipDirectory(@RequestParam("filename") String filename) {
+//  @GetMapping("/list")
+//  public ResponseEntity<List<java.nio.file.Path>> listUploadedFiles(@RequestParam("path") String path) throws IOException {
+//
+//    List<java.nio.file.Path> collect = storageService.loadLocalFiles(path).collect(Collectors.toList());
+//
+//    return new ResponseEntity(collect, HttpStatus.OK);
+//  }
 
-    String zipFile = storageService.zipFile(filename);
-    Resource file = storageService.loadFromPath(zipFile);
-    return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-  }
+//  @GetMapping("/test/direcories")
+//  public ResponseEntity<Resource> getZipDirectory(@RequestParam("filename") String filename) {
+//
+//    String zipFile = storageService.zipFile(filename);
+//    Resource file = storageService.loadFromPath(zipFile);
+//    return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+//        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+//  }
 
-  @GetMapping("/files/{filename:.+}")
-  public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+//  @GetMapping("/files/{filename:.+}")
+//  public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+//
+//    Resource file = storageService.loadAsResource(filename);
+//    return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+//        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+//  }
 
-    Resource file = storageService.loadAsResource(filename);
-    return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-  }
-
-  @PostMapping("/")
-  public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
-      RedirectAttributes redirectAttributes) {
-
-    logger.info("handleFileUpload {}", file.getOriginalFilename());
-    String path = storageService.store(file);
-
-    redirectAttributes.addFlashAttribute("message",
-        "You successfully uploaded " + file.getOriginalFilename() + "!");
-
-    return new ResponseEntity<>(path, HttpStatus.OK);
-  }
+//  @PostMapping("/")
+//  public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
+//      RedirectAttributes redirectAttributes) {
+//
+//    logger.info("handleFileUpload {}", file.getOriginalFilename());
+//    String path = storageService.store(file);
+//
+//    redirectAttributes.addFlashAttribute("message",
+//        "You successfully uploaded " + file.getOriginalFilename() + "!");
+//
+//    return new ResponseEntity<>(path, HttpStatus.OK);
+//  }
 
   @ExceptionHandler(StorageFileNotFoundException.class)
   public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {

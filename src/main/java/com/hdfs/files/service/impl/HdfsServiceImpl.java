@@ -4,7 +4,6 @@ import com.hdfs.files.properties.FSConfigration;
 import com.hdfs.files.properties.StorageProperties;
 import com.hdfs.files.service.HdfsService;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class HdfsServiceImpl implements HdfsService {
